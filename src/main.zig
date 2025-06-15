@@ -1,4 +1,5 @@
 const std = @import("std");
+const preprocess = @import("preprocessor.zig");
 
 pub fn exit_err(msg: []const u8) noreturn {
     std.debug.print("{s}\n", .{msg});
@@ -23,5 +24,8 @@ pub fn main() void {
     const buf = file.readToEndAlloc(allocator, 1024) catch exit_err("Did you really try running this on a system with less than 1024 bytes of memory?");
     defer allocator.free(buf);
 
-    std.debug.print("Buf:\n{s}\n", .{buf});
+    var ops = std.ArrayList(preprocess.Op).init(allocator);
+    defer ops.deinit();
+
+    preprocess.preproccess(buf, &ops);
 }
