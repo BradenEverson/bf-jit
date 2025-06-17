@@ -20,5 +20,16 @@ pub const Op = struct {
 
 pub fn preproccess(buf: []const u8, al: *std.ArrayList(Op)) void {
     _ = al;
-    _ = buf;
+
+    for (buf) |val| {
+        switch (val) {
+            '+' => {},
+            '-' => {},
+            '>' => {},
+            '<' => {},
+
+            '[' => {},
+            ']' => {},
+        }
+    }
 }
