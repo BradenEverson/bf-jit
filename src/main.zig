@@ -28,4 +28,8 @@ pub fn main() void {
     defer ops.deinit();
 
     preprocess.preproccess(buf, &ops) catch exit_err("Appending to the allocator failed :(");
+
+    for (ops.items) |op| {
+        op.print_op();
+    }
 }
