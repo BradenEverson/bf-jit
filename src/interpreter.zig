@@ -16,6 +16,7 @@ pub const InterprettedRuntime = struct {
     pub fn run(self: *InterprettedRuntime) void {
         while (self.pc < self.commands.len) {
             const op = self.commands[self.pc];
+            op.print_op();
             switch (op.kind) {
                 .inc => {
                     self.state[self.cursor] +%= @intCast(op.extra % 256);
@@ -45,8 +46,23 @@ pub const InterprettedRuntime = struct {
                     self.pc += 1;
                 },
 
-                // Skip for now
-                else => self.pc += 1,
+                .while_start => {
+                    if (self.state[self.cursor] == 0) {
+                        self.pc = op.extra;
+                    } else {
+                        self.pc += 1;
+                    }
+                },
+
+                .while_end => {
+                    if (self.state[self.cursor] != 0) {
+                        self.pc = op.extra;
+                    } else {
+                        self.pc += 1;
+                    }
+                },
+
+                .read => {},
             }
         }
 

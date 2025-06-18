@@ -45,7 +45,7 @@ pub const OpKind = enum {
 
 pub const Op = struct {
     kind: OpKind,
-    extra: u32,
+    extra: u16,
 
     pub fn print_op(self: *const Op) void {
         const tag = self.kind.to_string();
@@ -55,7 +55,14 @@ pub const Op = struct {
 };
 
 pub fn preproccess(buf: []const u8, al: *std.ArrayList(Op)) !void {
-    var i: u32 = 0;
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    var stack = std.ArrayList(u16).init(allocator);
+    defer stack.deinit();
+
+    var i: u16 = 0;
     while (i < buf.len) {
         const current = buf[i];
         switch (current) {
@@ -89,5 +96,22 @@ pub fn preproccess(buf: []const u8, al: *std.ArrayList(Op)) !void {
                 i += 1;
             },
         }
+    }
+
+    // Step two: fill in the while loops
+
+    i = 0;
+
+    while (i < al.items.len) {
+        const op = &al.items[i];
+        if (op.kind == .while_start) {
+            _ = try stack.append(i);
+        } else if (op.kind == .while_end) {
+            const prev = stack.pop() orelse unreachable;
+            op.*.extra = prev;
+            al.items[prev].extra = i;
+        }
+
+        i += 1;
     }
 }
