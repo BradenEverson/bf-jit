@@ -27,5 +27,5 @@ pub fn main() void {
     var ops = std.ArrayList(preprocess.Op).init(allocator);
     defer ops.deinit();
 
-    preprocess.preproccess(buf, &ops);
+    preprocess.preproccess(buf, &ops) catch exit_err("Appending to the allocator failed :(");
 }
