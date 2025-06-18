@@ -1,3 +1,7 @@
+//! BF Compiler/Interpreter/Jit Main Entry Point
+//! loads a buffer from a file (maybe REPL in the future)
+//! and dispatches it to the chosen runtime
+
 const std = @import("std");
 const preprocess = @import("preprocessor.zig");
 const Runtime = @import("interpreter.zig").InterprettedRuntime;
@@ -34,6 +38,6 @@ pub fn main() void {
         op.print_op();
     }
 
-    const rt = Runtime.new(ops.items);
-    _ = rt;
+    var rt = Runtime.new(ops.items);
+    rt.run();
 }
