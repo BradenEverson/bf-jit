@@ -1,5 +1,6 @@
 const std = @import("std");
 const preprocess = @import("preprocessor.zig");
+const Runtime = @import("interpreter.zig").InterprettedRuntime;
 
 pub fn exit_err(msg: []const u8) noreturn {
     std.debug.print("{s}\n", .{msg});
@@ -32,4 +33,7 @@ pub fn main() void {
     for (ops.items) |op| {
         op.print_op();
     }
+
+    const rt = Runtime.new(ops.items);
+    _ = rt;
 }
