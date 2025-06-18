@@ -1,5 +1,6 @@
 //! Interpreter Runtime
 
+const std = @import("std");
 const Op = @import("preprocessor.zig").Op;
 
 pub const InterprettedRuntime = struct {
@@ -33,6 +34,14 @@ pub const InterprettedRuntime = struct {
 
                 .right => {
                     self.cursor += 1;
+                    self.pc += 1;
+                },
+
+                .print => {
+                    for (0..op.extra) |_| {
+                        std.debug.print("{c}", .{self.state[self.cursor]});
+                    }
+
                     self.pc += 1;
                 },
 
