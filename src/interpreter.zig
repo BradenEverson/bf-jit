@@ -49,5 +49,7 @@ pub const InterprettedRuntime = struct {
                 else => self.pc += 1,
             }
         }
+
+        std.debug.print("\n", .{});
     }
 };
