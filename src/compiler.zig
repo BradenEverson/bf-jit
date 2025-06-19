@@ -13,7 +13,15 @@ pub const CompiledRuntime = struct {
         return CompiledRuntime{ .commands = commands, .fd = fd };
     }
 
+    pub fn deinit(self: *CompiledRuntime) void {
+        self.fd.close();
+    }
+
     pub fn run(self: *CompiledRuntime) void {
+        var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+        defer arena.deinit();
+        const allocator = arena.allocator();
+
         _ = self.fd.write(
             \\section .bss
             \\tape: resb 30000
@@ -26,6 +34,44 @@ pub const CompiledRuntime = struct {
             \\
         ) catch exit_err("Failed to write :(");
 
+        for (self.commands) |cmd| {
+            switch (cmd.kind) {
+                .left => {
+                    const instr = std.fmt.allocPrint(allocator, "sub rbx, {d}\n", .{cmd.extra}) catch exit_err("Failed to format string");
+                    _ = self.fd.write(instr) catch exit_err("Failed to write ;(");
+                },
+                .right => {
+                    const instr = std.fmt.allocPrint(allocator, "add rbx, {d}\n", .{cmd.extra}) catch exit_err("Failed to format string");
+                    _ = self.fd.write(instr) catch exit_err("Failed to write ;(");
+                },
+                .inc => {
+                    const instr = std.fmt.allocPrint(allocator, "add byte [rbx], {d}\n", .{cmd.extra}) catch exit_err("Failed to format string");
+                    _ = self.fd.write(instr) catch exit_err("Failed to write ;(");
+                },
+                .dec => {
+                    const instr = std.fmt.allocPrint(allocator, "sub byte [rbx], {d}\n", .{cmd.extra}) catch exit_err("Failed to format string");
+                    _ = self.fd.write(instr) catch exit_err("Failed to write ;(");
+                },
+
+                .print => {
+                    const instr = std.fmt.allocPrint(allocator,
+                        \\mov rax, 1
+                        \\mov rdi, 1
+                        \\mov rsi, rbx
+                        \\mov rdx, 1
+                        \\syscall
+                        \\
+                    , .{}) catch exit_err("Failed to format string");
+
+                    for (0..cmd.extra) |_| {
+                        _ = self.fd.write(instr) catch exit_err("Failed to write ;(");
+                    }
+                },
+
+                else => @panic("not implemented"), // unimplemented for now
+            }
+        }
+
         _ = self.fd.write(
             \\
             \\mov rax, 60
@@ -33,6 +79,5 @@ pub const CompiledRuntime = struct {
             \\syscall
             \\
         ) catch exit_err("Failed to write :(");
-        self.fd.close();
     }
 };

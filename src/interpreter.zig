@@ -13,6 +13,8 @@ pub const InterprettedRuntime = struct {
         return InterprettedRuntime{ .commands = commands, .state = [_]u8{0} ** 30_000, .pc = 0, .cursor = 0 };
     }
 
+    pub fn deinit() void {}
+
     pub fn run(self: *InterprettedRuntime) void {
         while (self.pc < self.commands.len) {
             const op = self.commands[self.pc];

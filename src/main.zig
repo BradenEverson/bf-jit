@@ -36,5 +36,6 @@ pub fn main() void {
     preprocess.preproccess(buf, &ops) catch exit_err("Appending to the allocator failed :(");
 
     var rt = Runtime.new(ops.items);
+    defer rt.deinit();
     rt.run();
 }
