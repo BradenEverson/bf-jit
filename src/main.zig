@@ -4,7 +4,8 @@
 
 const std = @import("std");
 const preprocess = @import("preprocessor.zig");
-const Runtime = @import("interpreter.zig").InterprettedRuntime;
+//const Runtime = @import("interpreter.zig").InterprettedRuntime;
+const Runtime = @import("compiler.zig").CompiledRuntime;
 
 pub fn exit_err(msg: []const u8) noreturn {
     std.debug.print("{s}\n", .{msg});
