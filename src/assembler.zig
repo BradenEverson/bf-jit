@@ -4,20 +4,20 @@ const std = @import("std");
 const Op = @import("preprocessor.zig").Op;
 const exit_err = @import("main.zig").exit_err;
 
-pub const CompiledRuntime = struct {
+pub const AssembledRuntime = struct {
     commands: []Op,
     fd: std.fs.File,
 
-    pub fn new(commands: []Op) CompiledRuntime {
+    pub fn new(commands: []Op) AssembledRuntime {
         const fd = std.fs.cwd().createFile("out.s", .{}) catch exit_err("Failed to make file");
-        return CompiledRuntime{ .commands = commands, .fd = fd };
+        return AssembledRuntime{ .commands = commands, .fd = fd };
     }
 
-    pub fn deinit(self: *CompiledRuntime) void {
+    pub fn deinit(self: *AssembledRuntime) void {
         self.fd.close();
     }
 
-    pub fn run(self: *CompiledRuntime) void {
+    pub fn run(self: *AssembledRuntime) void {
         var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
         defer arena.deinit();
         const allocator = arena.allocator();
