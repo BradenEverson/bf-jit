@@ -6,3 +6,5 @@
 - [x] Assembler
 - [ ] Compiler
 - [ ] JIT Compiler
+
+Inspired by: https://github.com/tsoding/bfjit
