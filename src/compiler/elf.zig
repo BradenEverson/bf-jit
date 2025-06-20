@@ -13,10 +13,33 @@ pub const Elf64_Word = u32;
 pub const Elf64_Sxword = i64;
 pub const Elf64_Xword = u64;
 
-pub const EI_NIDENT = 16;
+pub const ElfType = enum(u16) {
+    /// File identification
+    EI_MAG0 = 0,
+    /// File identification
+    EI_MAG1 = 1,
+    /// File identification
+    EI_MAG2 = 2,
+    /// File identification
+    EI_MAG3 = 3,
+    /// File class
+    EI_CLASS = 4,
+    /// Data encoding
+    EI_DATA = 5,
+    /// File version
+    EI_VERSION = 6,
+    /// Operating system/ABI identification
+    EI_OSABI = 7,
+    /// ABI version
+    EI_ABIVERSION = 8,
+    /// Start of padding bytes
+    EI_PAD = 9,
+    /// Size of e_ident[]
+    EI_NIDENT = 16,
+};
 
 pub const Elf64_Ehdr = struct {
-    e_ident: [EI_NIDENT]u8,
+    e_ident: [@intFromEnum(ElfType.EI_NIDENT)]u8,
     e_type: u16,
     e_machine: u16,
     e_version: u32,
