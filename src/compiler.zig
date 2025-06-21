@@ -23,13 +23,9 @@ pub const CompiledRuntime = struct {
         var buf = std.ArrayList(u8).init(allocator);
         defer buf.deinit();
 
-        const program = [_]u8{
-            0x48, 0xC7, 0xC0, 0x3C, 0x00, 0x00, 0x00,
-            0x48, 0xC7, 0xC7, 0x2A, 0x00, 0x00, 0x00,
-            0x0F, 0x05,
-        };
+        const program = [_]u8{};
 
-        elf.wrap_elf(&program, 0x400000, &buf) catch exit_err("Elf bad");
+        elf.wrap_elf(&program, &buf) catch exit_err("Elf bad");
         _ = self.fd.write(buf.items) catch exit_err("Writing bad");
     }
 };
