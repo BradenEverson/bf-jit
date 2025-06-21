@@ -3,6 +3,7 @@
 const std = @import("std");
 const Op = @import("preprocessor.zig").Op;
 const exit_err = @import("main.zig").exit_err;
+const elf = @import("compiler/elf.zig");
 
 pub const CompiledRuntime = struct {
     commands: []Op,
@@ -18,6 +19,17 @@ pub const CompiledRuntime = struct {
     }
 
     pub fn run(self: *CompiledRuntime) void {
-        _ = self;
+        const allocator = std.heap.page_allocator;
+        var buf = std.ArrayList(u8).init(allocator);
+        defer buf.deinit();
+
+        const program = [_]u8{
+            0x48, 0xC7, 0xC0, 0x3C, 0x00, 0x00, 0x00,
+            0x48, 0xC7, 0xC7, 0x2A, 0x00, 0x00, 0x00,
+            0x0F, 0x05,
+        };
+
+        elf.wrap_elf(&program, 0x400000, &buf) catch exit_err("Elf bad");
+        _ = self.fd.write(buf.items) catch exit_err("Writing bad");
     }
 };
