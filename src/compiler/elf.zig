@@ -82,12 +82,7 @@ const entry = [_]u8{
 };
 
 /// The exit syscall
-const exit = [_]u8{
-    0x48, 0xC7, 0xC0, 0x3C,
-    0x00, 0x00, 0x00, 0x48,
-    0xC7, 0xC7, 0x2A, 0x00,
-    0x00, 0x00, 0x0F, 0x05,
-};
+const exit = [_]u8{ 0xB8, 0x3C, 0x00, 0x00, 0x00, 0xBF, 0x00, 0x00, 0x00, 0x00, 0x0F, 0x05 };
 
 pub fn wrap_elf(program: []const u8, buf: *std.ArrayList(u8)) !void {
     var header = entry;
@@ -113,5 +108,5 @@ pub fn wrap_elf(program: []const u8, buf: *std.ArrayList(u8)) !void {
     const code_end = 0x1000 + code_size;
     try buf.appendNTimes(0, 0x2000 - code_end);
 
-    try buf.appendNTimes(0, 30000);
+    try buf.appendNTimes(66, 30000);
 }
