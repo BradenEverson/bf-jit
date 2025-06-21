@@ -23,25 +23,80 @@ pub const CompiledRuntime = struct {
         var buf = std.ArrayList(u8).init(allocator);
         defer buf.deinit();
 
-        const program = [_]u8{
-            // Mov 0x00402000 to EBX, that's the start address of the 30k block
-            0x48, 0xC7, 0xC3, 0x00, 0x20, 0x40, 0x00,
+        var program = std.ArrayList(u8).init(allocator);
 
-            // Mov Rax, 1
-            0xB8, 0x01, 0x00, 0x00, 0x00,
-            // Mov Rdi, 1
-            0xBF, 0x01,
-            0x00, 0x00, 0x00,
-            // Mov Rsi, Rbx
-            0x89, 0xDE,
-            // Mov Rdx, 1
-            0xBA, 0x01,
-            0x00, 0x00, 0x00,
-            // Syscall
-            0x0F, 0x05,
-        };
+        const start = [_]u8{ 0x48, 0xC7, 0xC3, 0x00, 0x20, 0x40, 0x00 };
+        program.appendSlice(&start) catch exit_err("Failed to append to array :(");
 
-        elf.wrap_elf(&program, &buf) catch exit_err("Elf bad");
+        for (self.commands) |cmd| {
+            switch (cmd.kind) {
+                .right => {
+                    // Add ebx, *extra*
+                    const instr = [_]u8{ 0x81, 0xC3, @intCast(cmd.extra & 0xFF), @intCast((cmd.extra >> 8) & 0xFF), 0x00, 0x00 };
+                    program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
+                },
+
+                .left => {
+                    // Add ebx, *extra*
+                    const instr = [_]u8{ 0x81, 0xEB, @intCast(cmd.extra & 0xFF), @intCast((cmd.extra >> 8) & 0xFF), 0x00, 0x00 };
+                    program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
+                },
+
+                .print => {
+                    const instr = [_]u8{
+                        // Mov Rax, 1
+                        0xB8, 0x01, 0x00, 0x00, 0x00,
+                        // Mov Rdi, 1
+                        0xBF, 0x01, 0x00, 0x00, 0x00,
+                        // Mov Rsi, Rbx
+                        0x89, 0xDE,
+                        // Mov Rdx, 1
+                        0xBA, 0x01, 0x00,
+                        0x00, 0x00,
+                        // Syscall
+                        0x0F, 0x05,
+                    };
+
+                    for (0..cmd.extra) |_| {
+                        program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
+                    }
+                },
+
+                .inc => {
+                    // Add byte [ebx], *extra*
+                    const instr = [_]u8{ 0x67, 0x80, 0x03, @intCast(cmd.extra % 0x100) };
+                    program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
+                },
+
+                .dec => {
+                    // Sub byte [ebx], *extra*
+                    const instr = [_]u8{ 0x67, 0x80, 0x2B, @intCast(cmd.extra % 0x100) };
+                    program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
+                },
+
+                else => {},
+            }
+        }
+
+        // const program = [_]u8{
+        //     // Mov 0x00402000 to EBX, that's the start address of the 30k block
+        //     0x48, 0xC7, 0xC3, 0x00, 0x20, 0x40, 0x00,
+        //
+        //     // Mov Rax, 1
+        //     0xB8, 0x01, 0x00, 0x00, 0x00,
+        //     // Mov Rdi, 1
+        //     0xBF, 0x01,
+        //     0x00, 0x00, 0x00,
+        //     // Mov Rsi, Rbx
+        //     0x89, 0xDE,
+        //     // Mov Rdx, 1
+        //     0xBA, 0x01,
+        //     0x00, 0x00, 0x00,
+        //     // Syscall
+        //     0x0F, 0x05,
+        // };
+
+        elf.wrap_elf(program.items, &buf) catch exit_err("Elf bad");
         _ = self.fd.write(buf.items) catch exit_err("Writing bad");
     }
 };

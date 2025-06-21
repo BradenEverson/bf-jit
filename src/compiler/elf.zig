@@ -108,5 +108,5 @@ pub fn wrap_elf(program: []const u8, buf: *std.ArrayList(u8)) !void {
     const code_end = 0x1000 + code_size;
     try buf.appendNTimes(0, 0x2000 - code_end);
 
-    try buf.appendNTimes(66, 30000);
+    try buf.appendNTimes(0, 30000);
 }
