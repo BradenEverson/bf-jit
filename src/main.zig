@@ -29,7 +29,7 @@ pub fn main() void {
     const file = std.fs.cwd().openFile(path, .{}) catch exit_err("File does not exist >:(");
     defer file.close();
 
-    const buf = file.readToEndAlloc(allocator, 1024) catch exit_err("Did you really try running this on a system with less than 1024 bytes of memory?");
+    const buf = file.readToEndAlloc(allocator, 4096) catch exit_err("File is too large");
     defer allocator.free(buf);
 
     var ops = std.ArrayList(preprocess.Op).init(allocator);
