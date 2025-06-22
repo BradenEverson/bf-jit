@@ -3,8 +3,8 @@
 const std = @import("std");
 const linux = std.os.linux;
 
-const Op = @import("preprocessor.zig").Op;
-const exit_err = @import("main.zig").exit_err;
+const Op = @import("../preprocessor.zig").Op;
+const exit_err = @import("../main.zig").exit_err;
 const elf = @import("compiler/elf.zig");
 const create_binary = @import("compiler/bin.zig").create_binary;
 

@@ -1,8 +1,8 @@
 //! Interpreter Runtime
 
 const std = @import("std");
-const Op = @import("preprocessor.zig").Op;
-const exit_err = @import("main.zig").exit_err;
+const Op = @import("../preprocessor.zig").Op;
+const exit_err = @import("../main.zig").exit_err;
 
 pub const InterprettedRuntime = struct {
     commands: []Op,

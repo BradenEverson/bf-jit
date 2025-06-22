@@ -4,10 +4,10 @@
 
 const std = @import("std");
 const preprocess = @import("preprocessor.zig");
-// const Runtime = @import("interpreter.zig").InterprettedRuntime;
-// const Runtime = @import("assembler.zig").AssembledRuntime;
-const Runtime = @import("compiler.zig").CompiledRuntime;
-// const Runtime = @import("jit.zig").JitRuntime;
+// const Runtime = @import("runtimes/interpreter.zig").InterprettedRuntime;
+// const Runtime = @import("runtimes/assembler.zig").AssembledRuntime;
+// const Runtime = @import("runtimes/compiler.zig").CompiledRuntime;
+const Runtime = @import("runtimes/jit.zig").JitRuntime;
 
 pub fn exit_err(msg: []const u8) noreturn {
     std.debug.print("{s}\n", .{msg});

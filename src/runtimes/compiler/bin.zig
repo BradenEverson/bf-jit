@@ -1,8 +1,8 @@
 //! Utility function for converting a command stream to x86-64 machine binary
 
-const Op = @import("../preprocessor.zig").Op;
+const Op = @import("../../preprocessor.zig").Op;
 const std = @import("std");
-const exit_err = @import("../main.zig").exit_err;
+const exit_err = @import("../../main.zig").exit_err;
 
 pub fn create_binary(commands: []Op, program: *std.ArrayList(u8)) void {
     var curr_offset: i32 = 0;
