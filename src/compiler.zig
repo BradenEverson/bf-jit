@@ -33,14 +33,14 @@ pub const CompiledRuntime = struct {
         for (self.commands) |cmd| {
             switch (cmd.kind) {
                 .right => {
-                    // Add ebx, *extra*
-                    const instr = [_]u8{ 0x81, 0xC3, @intCast(cmd.extra & 0xFF), @intCast((cmd.extra >> 8) & 0xFF), 0x00, 0x00 };
+                    // Add rbx, *extra*
+                    const instr = [_]u8{ 0x48, 0x81, 0xC3, @intCast(cmd.extra & 0xFF), @intCast((cmd.extra >> 8) & 0xFF), 0x00, 0x00 };
                     program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
                 },
 
                 .left => {
                     // Add ebx, *extra*
-                    const instr = [_]u8{ 0x81, 0xEB, @intCast(cmd.extra & 0xFF), @intCast((cmd.extra >> 8) & 0xFF), 0x00, 0x00 };
+                    const instr = [_]u8{ 0x48, 0x81, 0xEB, @intCast(cmd.extra & 0xFF), @intCast((cmd.extra >> 8) & 0xFF), 0x00, 0x00 };
                     program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
                 },
 
@@ -66,13 +66,13 @@ pub const CompiledRuntime = struct {
 
                 .inc => {
                     // Add byte [ebx], *extra*
-                    const instr = [_]u8{ 0x67, 0x80, 0x03, @intCast(cmd.extra % 0x100) };
+                    const instr = [_]u8{ 0x80, 0x03, @intCast(cmd.extra % 0x100) };
                     program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
                 },
 
                 .dec => {
                     // Sub byte [ebx], *extra*
-                    const instr = [_]u8{ 0x67, 0x80, 0x2B, @intCast(cmd.extra % 0x100) };
+                    const instr = [_]u8{ 0x80, 0x2B, @intCast(cmd.extra % 0x100) };
                     program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
                 },
 
@@ -86,10 +86,10 @@ pub const CompiledRuntime = struct {
 
                     const instr = [_]u8{
                         // Cmp byte [ebx], 0 (I really hate what zls format is doing here)
-                        0x67,                            0x80,                            0x3b,                           0x00,
+                        0x80,                           0x3b,                            0x00,
                         // jump near if equal {offset}
-                        0x0F,                            0x84,                            @intCast((offset >> 0) & 0xFF), @intCast((offset >> 8) & 0xFF),
-                        @intCast((offset >> 16) & 0xFF), @intCast((offset >> 24) & 0xFF),
+                        0x0F,                           0x84,                            @intCast((offset >> 0) & 0xFF),
+                        @intCast((offset >> 8) & 0xFF), @intCast((offset >> 16) & 0xFF), @intCast((offset >> 24) & 0xFF),
                     };
                     program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
                 },
@@ -104,10 +104,10 @@ pub const CompiledRuntime = struct {
 
                     const instr = [_]u8{
                         // Cmp byte [ebx], 0 (I really hate what zls format is doing here)
-                        0x67,                            0x80,                            0x3b,                           0x00,
+                        0x80,                           0x3b,                            0x00,
                         // jump near if equal {offset}
-                        0x0F,                            0x85,                            @intCast((offset >> 0) & 0xFF), @intCast((offset >> 8) & 0xFF),
-                        @intCast((offset >> 16) & 0xFF), @intCast((offset >> 24) & 0xFF),
+                        0x0F,                           0x85,                            @intCast((offset >> 0) & 0xFF),
+                        @intCast((offset >> 8) & 0xFF), @intCast((offset >> 16) & 0xFF), @intCast((offset >> 24) & 0xFF),
                     };
                     program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
                 },
