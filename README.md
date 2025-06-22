@@ -4,7 +4,7 @@
 ## Current Work:
 - [x] Interpreter
 - [x] Assembler
-- [ ] Compiler
+- [X] Compiler
 - [ ] JIT Compiler
 
 Inspired by: https://github.com/tsoding/bfjit
