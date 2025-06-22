@@ -98,6 +98,44 @@ pub const JitRuntime = struct {
                     }
                 },
 
+                .read => {
+                    const instr = [_]u8{
+                        // mov rax, 0
+                        0x48,
+                        0xc7,
+                        0xc0,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x00,
+                        // mov rsi, rbx
+                        0x48,
+                        0x89,
+                        0xde,
+                        // mov rdi, 0
+                        0x48,
+                        0xc7,
+                        0xc7,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x00,
+                        // mov rdx, 1
+                        0x48,
+                        0xc7,
+                        0xc2,
+                        0x01,
+                        0x00,
+                        0x00,
+                        0x00,
+                        // syscall
+                        0x0f,
+                        0x05,
+                    };
+
+                    program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
+                },
+
                 .inc => {
                     // Add byte [ebx], *extra*
                     const instr = [_]u8{ 0x80, 0x03, @intCast(cmd.extra % 0x100) };
@@ -145,8 +183,6 @@ pub const JitRuntime = struct {
                     };
                     program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
                 },
-
-                else => {},
             }
 
             curr_offset += cmd.get_byte_size();

@@ -100,9 +100,7 @@ pub const AssembledRuntime = struct {
                         \\
                     , .{}) catch exit_err("Failed to format string");
 
-                    for (0..cmd.extra) |_| {
-                        _ = self.fd.write(instr) catch exit_err("Failed to write ;(");
-                    }
+                    _ = self.fd.write(instr) catch exit_err("Failed to write ;(");
                 },
             }
         }

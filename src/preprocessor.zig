@@ -56,7 +56,7 @@ pub const Op = struct {
             .while_start => 9,
             .while_end => 9,
             .print => 26 * self.*.extra,
-            .read => 0xFF,
+            .read => 26,
         };
     }
 
