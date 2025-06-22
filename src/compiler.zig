@@ -46,17 +46,37 @@ pub const CompiledRuntime = struct {
 
                 .print => {
                     const instr = [_]u8{
-                        // Mov Rax, 1
-                        0xB8, 0x01, 0x00, 0x00, 0x00,
-                        // Mov Rdi, 1
-                        0xBF, 0x01, 0x00, 0x00, 0x00,
-                        // Mov Rsi, Rbx
-                        0x89, 0xDE,
-                        // Mov Rdx, 1
-                        0xBA, 0x01, 0x00,
-                        0x00, 0x00,
-                        // Syscall
-                        0x0F, 0x05,
+                        // mov rax, 1
+                        0x48,
+                        0xc7,
+                        0xc0,
+                        0x01,
+                        0x00,
+                        0x00,
+                        0x00,
+                        // mov rsi, rbx
+                        0x48,
+                        0x89,
+                        0xde,
+                        // mov rdi, 1
+                        0x48,
+                        0xc7,
+                        0xc7,
+                        0x01,
+                        0x00,
+                        0x00,
+                        0x00,
+                        // mov rdx, 1
+                        0x48,
+                        0xc7,
+                        0xc2,
+                        0x01,
+                        0x00,
+                        0x00,
+                        0x00,
+                        // syscall
+                        0x0f,
+                        0x05,
                     };
 
                     for (0..cmd.extra) |_| {
