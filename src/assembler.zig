@@ -90,7 +90,20 @@ pub const AssembledRuntime = struct {
                     _ = self.fd.write(instr) catch exit_err("Failed to write ;(");
                 },
 
-                else => @panic("not implemented"), // unimplemented for now
+                .read => {
+                    const instr = std.fmt.allocPrint(allocator,
+                        \\mov rax, 0
+                        \\mov rdi, 0
+                        \\mov rsi, rbx
+                        \\mov rdx, 1
+                        \\syscall
+                        \\
+                    , .{}) catch exit_err("Failed to format string");
+
+                    for (0..cmd.extra) |_| {
+                        _ = self.fd.write(instr) catch exit_err("Failed to write ;(");
+                    }
+                },
             }
         }
 

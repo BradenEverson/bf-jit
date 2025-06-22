@@ -2,6 +2,7 @@
 
 const std = @import("std");
 const Op = @import("preprocessor.zig").Op;
+const exit_err = @import("main.zig").exit_err;
 
 pub const InterprettedRuntime = struct {
     commands: []Op,
@@ -13,9 +14,14 @@ pub const InterprettedRuntime = struct {
         return InterprettedRuntime{ .commands = commands, .state = [_]u8{0} ** 30_000, .pc = 0, .cursor = 0 };
     }
 
-    pub fn deinit() void {}
+    pub fn deinit(self: *InterprettedRuntime) void {
+        _ = self;
+    }
 
     pub fn run(self: *InterprettedRuntime) void {
+        const stdin = std.io.getStdIn();
+        const reader = stdin.reader();
+
         while (self.pc < self.commands.len) {
             const op = self.commands[self.pc];
             switch (op.kind) {
@@ -63,7 +69,11 @@ pub const InterprettedRuntime = struct {
                     }
                 },
 
-                .read => {},
+                .read => {
+                    const byte = reader.readByte() catch exit_err("Reading 1 byte failed");
+                    self.state[self.cursor] = byte;
+                    self.pc += 1;
+                },
             }
         }
     }
