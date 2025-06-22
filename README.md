@@ -1,5 +1,5 @@
 # bf-jit 🧠💥
-## Implementations for a BrainF Interpreter, Assembler, Compiler and JIT Compiler
+## Implementations for a BrainF Interpreter, Assembler, Compiler and Just In Time Compiler
 
 ## Current Features:
 - [x] Interpreter
