@@ -28,6 +28,8 @@ pub const CompiledRuntime = struct {
         const start = [_]u8{ 0x48, 0xC7, 0xC3, 0x00, 0x20, 0x40, 0x00 };
         program.appendSlice(&start) catch exit_err("Failed to append to array :(");
 
+        var curr_offset: i32 = 0;
+
         for (self.commands) |cmd| {
             switch (cmd.kind) {
                 .right => {
@@ -74,27 +76,47 @@ pub const CompiledRuntime = struct {
                     program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
                 },
 
+                .while_start => {
+                    var close_offset: i32 = 0;
+                    for (0..cmd.extra) |i| {
+                        close_offset += self.commands[i].get_byte_size();
+                    }
+
+                    const offset: i32 = close_offset - curr_offset;
+
+                    const instr = [_]u8{
+                        // Cmp byte [ebx], 0 (I really hate what zls format is doing here)
+                        0x67,                            0x80,                            0x3b,                           0x00,
+                        // jump near if equal {offset}
+                        0x0F,                            0x84,                            @intCast((offset >> 0) & 0xFF), @intCast((offset >> 8) & 0xFF),
+                        @intCast((offset >> 16) & 0xFF), @intCast((offset >> 24) & 0xFF),
+                    };
+                    program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
+                },
+
+                .while_end => {
+                    var close_offset: i32 = 0;
+                    for (0..cmd.extra) |i| {
+                        close_offset += self.commands[i].get_byte_size();
+                    }
+
+                    const offset: i32 = close_offset - curr_offset;
+
+                    const instr = [_]u8{
+                        // Cmp byte [ebx], 0 (I really hate what zls format is doing here)
+                        0x67,                            0x80,                            0x3b,                           0x00,
+                        // jump near if equal {offset}
+                        0x0F,                            0x85,                            @intCast((offset >> 0) & 0xFF), @intCast((offset >> 8) & 0xFF),
+                        @intCast((offset >> 16) & 0xFF), @intCast((offset >> 24) & 0xFF),
+                    };
+                    program.appendSlice(&instr) catch exit_err("Failed to append to array :(");
+                },
+
                 else => {},
             }
-        }
 
-        // const program = [_]u8{
-        //     // Mov 0x00402000 to EBX, that's the start address of the 30k block
-        //     0x48, 0xC7, 0xC3, 0x00, 0x20, 0x40, 0x00,
-        //
-        //     // Mov Rax, 1
-        //     0xB8, 0x01, 0x00, 0x00, 0x00,
-        //     // Mov Rdi, 1
-        //     0xBF, 0x01,
-        //     0x00, 0x00, 0x00,
-        //     // Mov Rsi, Rbx
-        //     0x89, 0xDE,
-        //     // Mov Rdx, 1
-        //     0xBA, 0x01,
-        //     0x00, 0x00, 0x00,
-        //     // Syscall
-        //     0x0F, 0x05,
-        // };
+            curr_offset += cmd.get_byte_size();
+        }
 
         elf.wrap_elf(program.items, &buf) catch exit_err("Elf bad");
         _ = self.fd.write(buf.items) catch exit_err("Writing bad");

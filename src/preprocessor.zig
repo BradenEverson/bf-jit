@@ -47,6 +47,19 @@ pub const Op = struct {
     kind: OpKind,
     extra: u16,
 
+    pub fn get_byte_size(self: *const Op) u16 {
+        return switch (self.*.kind) {
+            .inc => 4,
+            .dec => 4,
+            .left => 6,
+            .right => 6,
+            .while_start => 10,
+            .while_end => 10,
+            .print => 19 * self.*.extra,
+            .read => 0xFF,
+        };
+    }
+
     pub fn print_op(self: *const Op) void {
         const tag = self.kind.to_string();
 
