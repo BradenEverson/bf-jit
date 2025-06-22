@@ -1,7 +1,7 @@
 # bf-jit 🧠💥
 ## Implementations for a BrainF Interpreter, Assembler, Compiler and JIT Compiler
 
-## Current Work:
+## Current Features:
 - [x] Interpreter
 - [x] Assembler
 - [x] ELF64 Compiler
